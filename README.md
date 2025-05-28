@@ -1,49 +1,21 @@
-
+# ostad-module-3-ci-cd
 
 ## Prerequisites
 
 - Node Version 22
 
-
-### 1. For Run This Applications
-```bash
-# install packages
-npm install 
-
-# Testing The Applications
-npm run check
-
-# For Run the application
+### 1. For Run This Application
+npm install  
+npm run check  
 npm start
-```
-
 
 ### Deployment Process
-1. **Cleanup**: Removes existing process if running
-   ```bash
-   pm2 delete node-app || true
-   ```
+pm2 delete node-app || true  
+pm2 start "./src/server.js" --name node-app  
+pm2 save
 
-2. **Start Application**: Launches with absolute path
-   ```bash
-   pm2 start "./src/server.js" --name node-app
-   ```
+### About The Application
+- `/`       # shows a hello world page  
+- `/api`    # responds with JSON  
 
-3. **Save Process List**: Persists PM2 configuration
-   ```bash
-   pm2 save
-   ```
-
-### About The Applications
-1. **Route**: This Application has 2 route
-   ```bash
-   / # this will show a hello world page
-   ```
-      ```bash
-   /api # this will response a json
-   ```
-
-2. **Default Port**: By Default this application will run on port 3000
-
-
-
+# Default port is 3000
