@@ -35,15 +35,12 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Set PowerShell Execution Policy
-        run: powershell -Command "Set-ExecutionPolicy RemoteSigned -Scope Process -Force"
-        shell: powershell
+      
 
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Fix permissions
-        run: chmod -R 755 ./src
+
 
       - name: Download test results
         uses: actions/download-artifact@v4
