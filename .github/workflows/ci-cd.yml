@@ -1,33 +1,69 @@
-deploy:
-  needs: test
-  runs-on: self-hosted
+name: CI/CD
 
-  steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+on:
+  push:
+    branches:
+      - main
 
-    - name: Set PowerShell Execution Policy
-      run: PowerShell -Command "Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process -Force"
+jobs:
+  test:
+    runs-on: ubuntu-latest
 
-    - name: Fix Permissions
-      run: chmod -R 755 ./src
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Download test results
-      uses: actions/download-artifact@v4
-      with:
-        name: test-results
-        path: ./test-results
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
-    - name: Show test results
-      run: cat ./test-results/test-results.txt
+      - name: Install dependencies
+        run: npm install
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
+      - name: Run tests
+        run: npm test > test-results.txt
 
-    - name: Install dependencies
-      run: npm install
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results.txt
 
-    - name: Start application
-      run: pm2 delete node-app || true && pm2 start "./src/server.js" --name node-app && pm2 save
+  deploy:
+    needs: test
+    runs-on: self-hosted
+
+    steps:
+      - name: Set PowerShell Execution Policy
+        run: powershell -Command "Set-ExecutionPolicy RemoteSigned -Scope Process -Force"
+        shell: powershell
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fix permissions
+        run: chmod -R 755 ./src
+
+      - name: Download test results
+        uses: actions/download-artifact@v4
+        with:
+          name: test-results
+          path: ./test-results
+
+      - name: Show test results
+        run: cat ./test-results/test-results.txt
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install PM2
+        run: npm install -g pm2
+
+      - name: Start application
+        run: pm2 delete node-app || true && pm2 start "./src/server.js" --name node-app && pm2 save
