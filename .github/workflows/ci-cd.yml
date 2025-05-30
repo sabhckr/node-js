@@ -49,10 +49,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: test-results
-          path: ./test-results
+          
 
       - name: Show test results
-        run: cat ./test-results/test-results.txt
+        run: cat test-results.txt
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -66,4 +66,5 @@ jobs:
         run: npm install -g pm2
 
       - name: Start application
-        run: pm2 delete node-app || true && pm2 start "./src/server.js" --name node-app && pm2 save
+        run: | 
+          pm2 delete node-app || true && pm2 start "./src/server.js" --name node-app && pm2 save
