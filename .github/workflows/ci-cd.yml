@@ -1,60 +1,33 @@
-name: Node.js CI/CD
+deploy:
+  needs: test
+  runs-on: self-hosted
 
-on:
-  push:
-    branches:
-      - main
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
+    - name: Set PowerShell Execution Policy
+      run: PowerShell -Command "Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process -Force"
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Fix Permissions
+      run: chmod -R 755 ./src
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
+    - name: Download test results
+      uses: actions/download-artifact@v4
+      with:
+        name: test-results
+        path: ./test-results
 
-      - name: Install dependencies
-        run: npm install
+    - name: Show test results
+      run: cat ./test-results/test-results.txt
 
-      - name: Run tests and save results
-        run: npm run check | tee test-results.txt
-        continue-on-error: true
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
 
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: test-results.txt
+    - name: Install dependencies
+      run: npm install
 
-  deploy:
-    needs: test
-    runs-on: self-hosted
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Download test results
-        uses: actions/download-artifact@v4
-        with:
-          name: test-results
-          path: ./test-results
-
-      - name: Show test results
-        run: cat ./test-results/test-results.txt
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Start application
-        run: pm2 delete node-app || true && pm2 start "./src/server.js" --name node-app && pm2 save
+    - name: Start application
+      run: pm2 delete node-app || true && pm2 start "./src/server.js" --name node-app && pm2 save
