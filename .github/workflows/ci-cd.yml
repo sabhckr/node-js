@@ -9,18 +9,23 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v3
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
         with:
           node-version: '16'
 
-      - run: npm install
+      - name: Install dependencies
+        run: npm install
 
-      - run: npm test | tee test-results.txt
+      - name: Run tests and save results
+        run: npm test | tee test-results.txt
         continue-on-error: true
 
-      - uses: actions/upload-artifact@v3
+      - name: Upload test results artifact
+        uses: actions/upload-artifact@v3
         with:
           name: test-results
           path: test-results.txt
@@ -29,19 +34,25 @@ jobs:
     needs: test
     runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - uses: actions/download-artifact@v3
+      - name: Download test results artifact
+        uses: actions/download-artifact@v3
         with:
           name: test-results
           path: ./test-results
 
-      - run: cat ./test-results/test-results.txt
+      - name: Display test results
+        run: cat ./test-results/test-results.txt
 
-      - uses: actions/setup-node@v3
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
         with:
           node-version: '16'
 
-      - run: npm install
+      - name: Install dependencies
+        run: npm install
 
-      - run: npm start
+      - name: Start application
+        run: npm start
