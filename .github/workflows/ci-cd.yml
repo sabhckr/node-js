@@ -22,8 +22,16 @@ jobs:
         run: npm install
 
       - name: Run tests and save results
-        run: npm test | tee test-results.txt
+        run: |
+          npm test | tee test-results.txt
         continue-on-error: true
+
+      - name: Ensure test results file exists
+        run: |
+          if [ ! -f test-results.txt ]; then
+            echo "No test results found. Creating an empty file."
+            touch test-results.txt
+          fi
 
       - name: Upload test results
         uses: actions/upload-artifact@v3
